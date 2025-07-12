@@ -1,0 +1,79 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Define a structure to hold student data
+struct Student {
+    string name;
+    vector<int> marks;
+    int total = 0;
+    float average = 0.0;
+    char grade = 'F';
+
+    void input(int numSubjects) {
+        cout << "Enter student name: ";
+        cin.ignore();
+        getline(cin, name);
+        marks.resize(numSubjects);
+
+        cout << "Enter marks for " << numSubjects << " subjects:\n";
+        for (int i = 0; i < numSubjects; ++i) {
+            cout << "Subject " << i + 1 << ": ";
+            cin >> marks[i];
+            total += marks[i];
+        }
+
+        average = (float)total / numSubjects;
+        assignGrade();
+    }
+
+    void assignGrade() {
+        if (average >= 90) grade = 'A';
+        else if (average >= 80) grade = 'B';
+        else if (average >= 70) grade = 'C';
+        else if (average >= 60) grade = 'D';
+        else if (average >= 50) grade = 'E';
+        else grade = 'F';
+    }
+
+    void display() const {
+        cout << setw(15) << left << name
+             << setw(10) << right << total
+             << setw(10) << right << fixed << setprecision(2) << average
+             << setw(8) << right << grade << endl;
+    }
+};
+
+// Function to display table header
+void displayHeader() {
+    cout << "\n---------------- Student Report ----------------\n";
+    cout << setw(15) << left << "Name"
+         << setw(10) << right << "Total"
+         << setw(10) << right << "Average"
+         << setw(8) << right << "Grade\n";
+    cout << "------------------------------------------------\n";
+}
+
+int main() {
+    int numStudents, numSubjects;
+    cout << "Enter number of students: ";
+    cin >> numStudents;
+    cout << "Enter number of subjects per student: ";
+    cin >> numSubjects;
+
+    vector<Student> students(numStudents);
+
+    for (int i = 0; i < numStudents; ++i) {
+        cout << "\n--- Enter details for Student " << i + 1 << " ---\n";
+        students[i].input(numSubjects);
+    }
+
+    displayHeader();
+    for (const auto& s : students) {
+        s.display();
+    }
+
+    return 0;
+}
