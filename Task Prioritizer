@@ -1,0 +1,64 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// Define task structure
+struct Task {
+    string name;
+    string deadline;  // Example: "2025-07-15"
+    int priority;     // 1 = highest, 5 = lowest
+
+    void input() {
+        cout << "Enter task name: ";
+        cin.ignore();
+        getline(cin, name);
+        cout << "Enter deadline (YYYY-MM-DD): ";
+        getline(cin, deadline);
+        cout << "Enter priority (1 = High, 5 = Low): ";
+        cin >> priority;
+        if (priority < 1 || priority > 5) priority = 5; // default to lowest if invalid
+    }
+
+    void display() const {
+        cout << setw(20) << left << name
+             << setw(15) << deadline
+             << setw(8) << priority << endl;
+    }
+};
+
+// Comparison function for sorting
+bool compareTasks(const Task& a, const Task& b) {
+    return a.priority < b.priority; // lower number = higher priority
+}
+
+// Menu header
+void printHeader() {
+    cout << "\n---------- Task List (Sorted by Priority) ----------\n";
+    cout << setw(20) << left << "Task Name"
+         << setw(15) << "Deadline"
+         << setw(8) << "Priority" << endl;
+    cout << "----------------------------------------------------\n";
+}
+
+int main() {
+    int n;
+    cout << "How many tasks do you want to enter? ";
+    cin >> n;
+
+    vector<Task> tasks(n);
+    for (int i = 0; i < n; ++i) {
+        cout << "\n--- Task " << i + 1 << " ---\n";
+        tasks[i].input();
+    }
+
+    sort(tasks.begin(), tasks.end(), compareTasks);
+
+    printHeader();
+    for (const auto& task : tasks) {
+        task.display();
+    }
+
+    return 0;
+}
