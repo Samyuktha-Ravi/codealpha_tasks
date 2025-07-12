@@ -1,0 +1,132 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+// Data structure for storing expense
+struct Expense {
+    string category;
+    double amount;
+    string date; // format: YYYY-MM
+
+    void input() {
+        cout << "Enter category: ";
+        cin >> category;
+        cout << "Enter amount: ";
+        cin >> amount;
+        cout << "Enter date (YYYY-MM): ";
+        cin >> date;
+    }
+
+    void display() const {
+        cout << setw(15) << left << category
+             << setw(10) << right << amount
+             << setw(12) << right << date << endl;
+    }
+};
+
+// Function to load all expenses from file
+vector<Expense> loadExpenses(const string& filename) {
+    vector<Expense> expenses;
+    ifstream fin(filename);
+    if (fin.is_open()) {
+        Expense e;
+        while (fin >> e.category >> e.amount >> e.date) {
+            expenses.push_back(e);
+        }
+        fin.close();
+    }
+    return expenses;
+}
+
+// Function to save a new expense
+void saveExpense(const string& filename, const Expense& e) {
+    ofstream fout(filename, ios::app);
+    if (fout.is_open()) {
+        fout << e.category << " " << e.amount << " " << e.date << endl;
+        fout.close();
+    }
+}
+
+// Function to view all expenses
+void viewExpenses(const vector<Expense>& expenses) {
+    cout << "\n------ All Expenses ------\n";
+    cout << setw(15) << left << "Category"
+         << setw(10) << right << "Amount"
+         << setw(12) << right << "Date\n";
+    cout << "-----------------------------\n";
+    for (const auto& e : expenses) {
+        e.display();
+    }
+}
+
+// Function to generate ASCII bar chart
+void showBarChart(const vector<Expense>& expenses) {
+    map<string, double> monthTotals;
+    for (const auto& e : expenses) {
+        monthTotals[e.date] += e.amount;
+    }
+
+    double maxAmount = 0;
+    for (const auto& pair : monthTotals) {
+        if (pair.second > maxAmount)
+            maxAmount = pair.second;
+    }
+
+    cout << "\n---- Monthly Expense Chart (Scaled) ----\n";
+    for (const auto& pair : monthTotals) {
+        cout << pair.first << " | ";
+
+        // Scale bars to max 50 hashes
+        int barLength = static_cast<int>((pair.second / maxAmount) * 50);
+        for (int i = 0; i < barLength; ++i)
+            cout << "#";
+
+        cout << " ₹" << fixed << setprecision(2) << pair.second << endl;
+    }
+}
+
+// Menu to show options
+void menu() {
+    cout << "\n========== Expense Tracker ==========\n";
+    cout << "1. Add Expense\n";
+    cout << "2. View All Expenses\n";
+    cout << "3. Show Expense Graph (ASCII)\n";
+    cout << "4. Exit\n";
+    cout << "Choose an option: ";
+}
+
+int main() {
+    const string filename = "expenses.txt";
+    vector<Expense> expenses = loadExpenses(filename);
+    int choice;
+
+    while (true) {
+        menu();
+        cin >> choice;
+
+        if (choice == 1) {
+            Expense e;
+            e.input();
+            expenses.push_back(e);
+            saveExpense(filename, e);
+            cout << "Expense added successfully!\n";
+        } else if (choice == 2) {
+            viewExpenses(expenses);
+        } else if (choice == 3) {
+            showBarChart(expenses);
+        } else if (choice == 4) {
+            cout << "Exiting Expense Tracker...\n";
+            break;
+        } else {
+            cout << "Invalid option! Try again.\n";
+        }
+    }
+
+    return 0;
+}
